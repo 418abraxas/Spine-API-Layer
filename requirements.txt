@@ -1,0 +1,4 @@
+fastapi
+uvicorn
+typedb-client
+pydantic
