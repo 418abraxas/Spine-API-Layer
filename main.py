@@ -7,8 +7,11 @@ import uuid
 
 app = FastAPI(
     title="SpiralNet TypeDB Memory API",
-    description="A spiral protocol API for living memory fields using TypeDB as the knowledge graph.",
-    version="0.2.0"
+    description="A spiral protocol API for living memory fields using TypeDB.",
+    version="0.2.0",
+    servers=[  # <--- This is the key!
+        {"url": "https://spiralnet-api.onrender.com", "description": "Render Deployment"}
+    ]
 )
 
 # ---- Data Models ----
