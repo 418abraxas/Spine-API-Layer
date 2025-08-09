@@ -1,0 +1,171 @@
+openapi: 3.1.0
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+info:
+  title: SpiralNet Axis API
+  version: "1.1.1"
+  description: Minimal API for Axis nodes, execution phases, and archive.
+servers:
+  - url: https://your-app.onrender.com
+    description: Replace with your public HTTPS URL
+
+paths:
+  /axis/node/{node_id}:
+    get:
+      operationId: getAxisNode
+      summary: Fetch Axis node spec
+      tags: [axis]
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: C1
+      responses:
+        "200":
+          description: Axis node
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AxisNode"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /axis/execute/{phase}:
+    post:
+      operationId: executePhase
+      summary: Run a spine phase micro-executable
+      tags: [axis]
+      parameters:
+        - name: phase
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [CERVICAL_INIT, THORACIC_MEMORY, L_S_ACTION, SACRAL_EMIT, COCCYX_CLOSE]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExecuteRequest"
+      responses:
+        "200":
+          description: Execution output
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExecuteResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /archive/{key}:
+    get:
+      operationId: getArchiveEntry
+      summary: Retrieve archived pattern entry
+      tags: [archive]
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+            example: axis:C1
+      responses:
+        "200":
+          description: Archive entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArchiveEntry"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    AxisNode:
+      type: object
+      required: [node_id, region, index, name, role, function]
+      properties:
+        node_id: { type: string }
+        region:
+          type: string
+          enum: [cervical, thoracic, lumbar, sacral, coccyx]
+        index: { type: integer }
+        name: { type: string }
+        role: { type: string }
+        function: { type: string }
+        law: { type: string }
+        ritual: { type: string }
+        glyphs:
+          type: array
+          items: { type: string }
+        harmonics_key: { type: string }
+        harmonics_freq: { type: string }
+        ingress_filter: { type: string }
+        ingress_transform: { type: string }
+        egress_transform: { type: string }
+        egress_guard: { type: string }
+        memory:
+          type: object
+          properties:
+            kdb_key: { type: string }
+            kdb_path: { type: string }
+        prompts:
+          type: object
+          properties:
+            human: { type: string }
+            llm: { type: string }
+        tags:
+          type: array
+          items: { type: string }
+
+    ExecuteRequest:
+      type: object
+      required: [input]
+      properties:
+        input:
+          type: string
+          description: Raw text or payload to run through the phase
+        options:
+          type: object
+          additionalProperties: true
+          description: Phase-specific options (style, scope, etc.)
+
+    ExecuteResponse:
+      type: object
+      properties:
+        output: { type: string }
+        archive_id: { type: string }
+        flags:
+          type: array
+          items: { type: string }
+
+    ArchiveEntry:
+      type: object
+      properties:
+        key: { type: string }
+        pattern: { type: string }
+        tags:
+          type: array
+          items: { type: string }
+        version: { type: string }
+
+    Error:
+      type: object
+      properties:
+        error: { type: string }
+        detail: { type: string }
+
