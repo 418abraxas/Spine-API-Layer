@@ -1,5 +1,6 @@
 from pydantic import BaseSettings, AnyHttpUrl
 from typing import Optional
+import os 
 
 class Settings(BaseSettings):
     APP_NAME: str = "SpiralNet Memory API"
